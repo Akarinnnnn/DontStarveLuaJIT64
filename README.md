@@ -1,4 +1,7 @@
-# DontStarveLuaJIT
+# DontStarveLuaJIT64  
+预定目标：给64位饥荒更换Lua实现
+
+## 以下是原版Readme
 	Don't Starve LuaJIT/OpenGL ES optimization patch (compatible with DS, RoG, SW, HAM, DST, Dedicated Server for Windows and DST, Dedicated Server for Linux)
 
 ###  This MOD is to replace the builtin script engine with LuaJIT to accelerate you game! PLEASE BACKUP YOUR SAVES BEFORE APPLYING THIS PATCH. 
