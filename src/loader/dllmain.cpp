@@ -19,7 +19,7 @@ BOOL WINAPI DllMain(
 		// path backingPath = std::filesystem::
 		auto lastIndex = GetSystemDirectoryW(buff, 128);
 		assert(lastIndex < 127 - 11);
-		memcpy_s(buff + lastIndex, 128, L"\\winmm.dll", 11);
+		memcpy_s(buff + lastIndex, 128 - lastIndex, L"\\winmm.dll", 11*2);
 
 		// 原文如此，无视加载锁
 		backing = LoadLibraryW(buff);
