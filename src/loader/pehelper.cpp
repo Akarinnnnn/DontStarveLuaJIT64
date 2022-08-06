@@ -9,8 +9,8 @@ size_t ExportFunctionCount = 103;
 PIMAGE_EXPORT_DIRECTORY GetExportDirectory(char* module)
 {
 	IMAGE_DOS_HEADER* header = (IMAGE_DOS_HEADER*)module;
-	IMAGE_OPTIONAL_HEADER64* ntheader = (IMAGE_OPTIONAL_HEADER64*)(module + header->e_lfanew);
-	PIMAGE_EXPORT_DIRECTORY eat = (PIMAGE_EXPORT_DIRECTORY)(module + ntheader->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+	IMAGE_OPTIONAL_HEADER64* ntheader = (IMAGE_OPTIONAL_HEADER64*)(module + header->e_lfanew + sizeof(IMAGE_FILE_HEADER) + 4);
+	return (PIMAGE_EXPORT_DIRECTORY)(module + ntheader->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 }
 
 char* GetModule(void* ptr)
@@ -39,7 +39,7 @@ void OverwriteOurEAT(void** source)
 	DWORD oldProtect = PAGE_READONLY;
 
 	auto status = VirtualProtect(thiseat, size, PAGE_READWRITE, &oldProtect);
-	assert(status == 0);
+	assert(status != 0);
 	memcpy(thiseat, source, size);
 
 	VirtualProtect(thiseat, size, oldProtect, &oldProtect);

@@ -1,4 +1,6 @@
-﻿namespace FunctionListGen;
+﻿using System.Text;
+
+namespace FunctionListGen;
 
 public class EmitDef : IEntryVisitor, IEmitter
 {
@@ -18,13 +20,18 @@ public class EmitDef : IEntryVisitor, IEmitter
 
 	public void Emit(string outDir)
 	{
-		var file = File.OpenWrite(Path.Combine(outDir, "exports.def"));
-		using StreamWriter writer = new(file);
+		var file = new FileStream(Path.Combine(outDir, "exports.def"), FileMode.Create);
+		using StreamWriter writer = new(file, Encoding.UTF8);
 
 		writer.WriteLine($"LIBRARY {libName}");
 		writer.WriteLine("EXPORTS");
 
-		exports.Sort((a, b) => a.HintIndex - b.HintIndex);
+		exports.Sort((a, b) => {
+			if (a.Name != null && b.Name != null)
+				return a.HintIndex - b.HintIndex;
+			else
+				return 0;
+		});
 
 		foreach (var export in exports)
 		{
