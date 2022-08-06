@@ -7,7 +7,7 @@ jmp rax
 impl1 endp
 
 impl2 proc public 
-jmp [ExportFunctionCount]+ 8*1
+jmp qword ptr [ExportFunctionCount+ 8*1]
 impl2 endp
 _text ends
 END
