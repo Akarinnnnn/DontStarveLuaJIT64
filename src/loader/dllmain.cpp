@@ -18,16 +18,19 @@ BOOL WINAPI DllMain(
 		wchar_t buff[128];
 		// path backingPath = std::filesystem::
 		auto lastIndex = GetSystemDirectoryW(buff, 128);
-		assert(lastIndex < 127 - 11);
+		if(lastIndex > 127 - 11)
+			return FALSE;
 		memcpy_s(buff + lastIndex, 128 - lastIndex, L"\\winmm.dll", 11*2);
 
 		// 原文如此，无视加载锁
 		backing = LoadLibraryW(buff);
-		assert(backing != nullptr);
+		if(backing == nullptr)
+			return FALSE;
 
 		auto* eat = GetExportTableAddress(backing);
 		funclist = eat;
 		OverwriteOurEAT(eat);
-
 	}
+
+	return TRUE;
 }
