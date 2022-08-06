@@ -5,7 +5,6 @@
 #include <cassert>
 
 extern "C" HMODULE backing = nullptr;
-extern "C" void** funclist = nullptr;
 using namespace std::filesystem;
 
 BOOL WINAPI DllMain(
@@ -28,8 +27,8 @@ BOOL WINAPI DllMain(
 			return FALSE;
 
 		auto* eat = GetExportTableAddress(backing);
-		funclist = eat;
-		OverwriteOurEAT(eat);
+		PrepareJumpTable(eat);
+		// OverwriteOurEAT(eat);
 	}
 
 	return TRUE;
