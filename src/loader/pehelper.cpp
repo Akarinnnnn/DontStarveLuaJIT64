@@ -2,9 +2,11 @@
 
 #define _WIN32_LEAN_AND_MEAN
 #include <cassert>
+#include <memory>
 #include <Windows.h>
 
-size_t ExportFunctionCount = 103;
+unsigned char* jmptable[ExportFunctionCount] {};
+
 
 PIMAGE_EXPORT_DIRECTORY GetExportDirectory(char* module)
 {
@@ -23,24 +25,23 @@ char* GetModule(void* ptr)
 	return ret;
 }
 
-void** GetExportTableAddress(void* ptr)
+unsigned int* GetExportTableAddress(void* ptr)
 {
 	auto mod = GetModule(ptr);
 	auto exdir = GetExportDirectory(mod);
-	return (void**)(mod + exdir->AddressOfFunctions);
+	return (unsigned int*)(mod + exdir->AddressOfFunctions);
 }
 
-void OverwriteOurEAT(void** source)
+void PrepareJumpTable(unsigned int* source)
 {
-	auto thismod = GetModule(&OverwriteOurEAT);
-	auto* thisExport = GetExportDirectory(thismod);
-	auto* thiseat = GetExportTableAddress(&OverwriteOurEAT);
-	auto size = (size_t)8 * thisExport->NumberOfFunctions;
+	auto targetmod = (unsigned char*)GetModule(&PrepareJumpTable);
+	auto size = ExportFunctionCount * 8;
 	DWORD oldProtect = PAGE_READONLY;
 
-	auto status = VirtualProtect(thiseat, size, PAGE_READWRITE, &oldProtect);
-	assert(status != 0);
-	memcpy(thiseat, source, size);
+	std::fill(jmptable, jmptable + ExportFunctionCount - 1, targetmod);
 
-	VirtualProtect(thiseat, size, oldProtect, &oldProtect);
+	for (size_t i = 0; i < ExportFunctionCount; i++)
+	{
+		jmptable[i] += source[i];
+	}
 }
