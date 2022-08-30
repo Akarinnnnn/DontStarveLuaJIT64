@@ -1,17 +1,22 @@
 #include "pehelper.hpp"
 
-#define _WIN32_LEAN_AND_MEAN
+#define _WIN32_LEAN_AND_MEAN 1
+
 #include <cassert>
 #include <memory>
 #include <Windows.h>
 
 unsigned char* jmptable[ExportFunctionCount] {};
 
+auto GetOptHeader(void* mod) {
+	IMAGE_DOS_HEADER * header = (IMAGE_DOS_HEADER*)mod;
+	IMAGE_OPTIONAL_HEADER64* ntheader = (IMAGE_OPTIONAL_HEADER64*)((char*)mod + header->e_lfanew + sizeof(IMAGE_FILE_HEADER) + 4);
+	return ntheader;
+}
 
 PIMAGE_EXPORT_DIRECTORY GetExportDirectory(char* module)
 {
-	IMAGE_DOS_HEADER* header = (IMAGE_DOS_HEADER*)module;
-	IMAGE_OPTIONAL_HEADER64* ntheader = (IMAGE_OPTIONAL_HEADER64*)(module + header->e_lfanew + sizeof(IMAGE_FILE_HEADER) + 4);
+	auto ntheader = GetOptHeader(module);
 	return (PIMAGE_EXPORT_DIRECTORY)(module + ntheader->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 }
 
@@ -34,7 +39,10 @@ unsigned int* GetExportTableAddress(void* ptr)
 
 void PrepareJumpTable(unsigned int* source)
 {
-	auto targetmod = (unsigned char*)GetModule(&PrepareJumpTable);
+	auto mod = GetModule(source);
+	auto dosheader = (IMAGE_DOS_HEADER*)mod;
+	auto ntheader = (IMAGE_OPTIONAL_HEADER64*)(mod + dosheader->e_lfanew + sizeof(IMAGE_FILE_HEADER) + 4);
+	auto targetmod = (unsigned char*)ntheader->ImageBase;
 	auto size = ExportFunctionCount * 8;
 	DWORD oldProtect = PAGE_READONLY;
 
@@ -44,4 +52,13 @@ void PrepareJumpTable(unsigned int* source)
 	{
 		jmptable[i] += source[i];
 	}
+}
+
+std::span<unsigned char> GetDsCodeSection(void* modDstExecutable)
+{
+	auto* opt = GetOptHeader(modDstExecutable);
+	// auto* fileheader = (IMAGE_FILE_HEADER*)((char*)opt - sizeof(IMAGE_FILE_HEADER));
+
+	unsigned char* pCodeSection = (unsigned char*)opt->ImageBase + opt->BaseOfCode;
+	return std::span<unsigned char>(pCodeSection, opt->SizeOfCode);
 }

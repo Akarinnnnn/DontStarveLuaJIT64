@@ -1,0 +1,3 @@
+[submodule "w64hooklib"]
+	path = w64hooklib
+	url = https://github.com/HoShiMin/HookLib.git

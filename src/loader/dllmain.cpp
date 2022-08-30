@@ -29,6 +29,9 @@ BOOL WINAPI DllMain(
 		auto* eat = GetExportTableAddress(backing);
 		PrepareJumpTable(eat);
 		// OverwriteOurEAT(eat);
+#ifdef _DEBUG
+		(void)getchar(); // мёр╩об
+#endif
 	}
 
 	return TRUE;
