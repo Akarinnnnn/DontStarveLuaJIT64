@@ -1,5 +1,5 @@
-#define _WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include "pch.hpp"
+
 #include "pehelper.hpp"
 #include <filesystem>
 #include <cassert>

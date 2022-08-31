@@ -1,10 +1,10 @@
-#include "pehelper.hpp"
-#define _WIN32_LEAN_AND_MEAN 1
+#include "pch.hpp"
 
 #include <cassert>
 #include <memory>
-#include <Windows.h>
-#include <ImageHlp.h>
+
+#include "pehelper.hpp"
+#define _WIN32_LEAN_AND_MEAN 1
 
 char* jmptable[ExportFunctionCount] {};
 
@@ -44,25 +44,15 @@ void PrepareJumpTable(unsigned int* source)
 	
 	// DWORD oldProtect = PAGE_READONLY;
 	auto* ntheader = GetOptHeader(mod);
-	char* expdir = (char*)GetExportDirectory((char*)source),
-		*expend = expdir + ntheader->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
+	char* expdir = (char*)GetExportDirectory((char*)source);
 	uint32_t* eat = (uint32_t*)(mod + ((PIMAGE_EXPORT_DIRECTORY)expdir)->AddressOfFunctions);
-	std::fill(jmptable, jmptable + ExportFunctionCount - 1, (unsigned char*)source);
+	std::fill(jmptable, jmptable + ExportFunctionCount - 1, mod);
 
 	char fwdLib[64];
 
 	for (size_t i = 0; i < ExportFunctionCount; i++)
 	{
 		jmptable[i] += eat[i];
-		if (jmptable[i] > expdir || jmptable[i] < expend)
-		{
-			// 函数转发，特殊处理
-			// ntdll.FunctionName
-			strcpy(fwdLib, jmptable[i]);
-			char* dotpos = strchr(fwdLib, '.');
-			*dotpos = 0;
-			jmptable[i] = (char*)GetProcAddress(GetModuleHandleA(fwdLib), dotpos + 1);
-		}
 	}
 
 

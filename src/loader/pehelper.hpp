@@ -6,3 +6,9 @@ extern "C" char * jmptable[ExportFunctionCount];
 unsigned int* GetExportTableAddress(void* pointerInModule);
 void PrepareJumpTable(unsigned int* source);
 std::span<unsigned char> GetDsCodeSection(void* mod);
+
+template<typename TTo, typename TFrom>
+TTo* ApplyRva(TFrom* base, int rva)
+{
+	return (TTo*)((char*)base + rva);
+}
