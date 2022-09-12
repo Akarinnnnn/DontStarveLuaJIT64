@@ -9,6 +9,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionListGen", "..\Funct
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "loader", "loader\loader.vcxproj", "{2F847634-B391-4B83-82CB-2B5A8713DEDF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LoaderTest", "LoaderTest", "{D2DA9520-8307-4488-8BA7-940B09FD6359}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaSignerature", "LoaderTest\LuaSignerature\LuaSignerature.vcxproj", "{661A539D-E3DA-41F6-B085-9A0094F6767B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaStatic", "LoaderTest\LuaLatestStatic\LuaLatestStatic.vcxproj", "{1C03F266-6611-49FD-931B-4FB30DED9FCF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReplacementVM", "TestLoader\TestLoader.vcxproj", "{C15A756E-00D0-4DE8-B171-961FF1923692}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -27,9 +35,26 @@ Global
 		{2F847634-B391-4B83-82CB-2B5A8713DEDF}.Debug|x64.Build.0 = Debug|x64
 		{2F847634-B391-4B83-82CB-2B5A8713DEDF}.Release|x64.ActiveCfg = Release|x64
 		{2F847634-B391-4B83-82CB-2B5A8713DEDF}.Release|x64.Build.0 = Release|x64
+		{661A539D-E3DA-41F6-B085-9A0094F6767B}.Debug|x64.ActiveCfg = Debug|x64
+		{661A539D-E3DA-41F6-B085-9A0094F6767B}.Debug|x64.Build.0 = Debug|x64
+		{661A539D-E3DA-41F6-B085-9A0094F6767B}.Release|x64.ActiveCfg = Release|x64
+		{661A539D-E3DA-41F6-B085-9A0094F6767B}.Release|x64.Build.0 = Release|x64
+		{1C03F266-6611-49FD-931B-4FB30DED9FCF}.Debug|x64.ActiveCfg = Debug|x64
+		{1C03F266-6611-49FD-931B-4FB30DED9FCF}.Debug|x64.Build.0 = Debug|x64
+		{1C03F266-6611-49FD-931B-4FB30DED9FCF}.Release|x64.ActiveCfg = Release|x64
+		{1C03F266-6611-49FD-931B-4FB30DED9FCF}.Release|x64.Build.0 = Release|x64
+		{C15A756E-00D0-4DE8-B171-961FF1923692}.Debug|x64.ActiveCfg = Debug|x64
+		{C15A756E-00D0-4DE8-B171-961FF1923692}.Debug|x64.Build.0 = Debug|x64
+		{C15A756E-00D0-4DE8-B171-961FF1923692}.Release|x64.ActiveCfg = Release|x64
+		{C15A756E-00D0-4DE8-B171-961FF1923692}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{661A539D-E3DA-41F6-B085-9A0094F6767B} = {D2DA9520-8307-4488-8BA7-940B09FD6359}
+		{1C03F266-6611-49FD-931B-4FB30DED9FCF} = {D2DA9520-8307-4488-8BA7-940B09FD6359}
+		{C15A756E-00D0-4DE8-B171-961FF1923692} = {D2DA9520-8307-4488-8BA7-940B09FD6359}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {19400B18-CA56-48CA-ADE6-5AD55359AB1B}

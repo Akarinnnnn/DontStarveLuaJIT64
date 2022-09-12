@@ -21,6 +21,7 @@ struct Writer
 	DWORD UnlockCode();
 };
 
-size_t SearchAndApply(void* hReplacement, void* hHookee);
+// return the number of hooked trunks
+size_t SearchAndApply(void* hReplacement, void* hHookee, void* hSignerature);
 
 void Apply(void* toHook, void* targetPointer);

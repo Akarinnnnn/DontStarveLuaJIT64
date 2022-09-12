@@ -58,7 +58,7 @@ void PrepareJumpTable(unsigned int* source)
 
 }
 
-std::span<unsigned char> GetDsCodeSection(void* modDstExecutable)
+std::span<unsigned char> GetCodeSection(void* modDstExecutable)
 {
 	auto* opt = GetOptHeader(modDstExecutable);
 	// auto* fileheader = (IMAGE_FILE_HEADER*)((char*)opt - sizeof(IMAGE_FILE_HEADER));

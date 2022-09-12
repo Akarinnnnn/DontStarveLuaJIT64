@@ -1,6 +1,7 @@
 #include "pch.hpp"
-
+#include "pehelper.hpp"
 #include "hook.hpp"
+#include "fde64bin/fde64.h"
 
 void Writer::Advance(int length)
 {
@@ -19,7 +20,14 @@ DWORD Writer::UnlockCode()
 	return old;
 }
 
+// FF 25 <i4 RVA>
 constexpr unsigned short Jmp64Prefix = '\x25\xff';
+
+size_t SearchAndApply(void* hReplacement, void* hHookee, void* hSignerature)
+{
+	size_t hooksCount = 0;
+	auto codesect = GetCodeSection(hHookee);
+}
 
 void Apply(void* toHook, void* targetPointer)
 {
