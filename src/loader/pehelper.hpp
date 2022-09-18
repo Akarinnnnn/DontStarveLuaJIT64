@@ -1,9 +1,11 @@
 #pragma once
+#include <Windows.h>
 #include <span>
 constexpr size_t ExportFunctionCount = 181; // winmm.dll
 extern "C" char * jmptable[ExportFunctionCount];
 
 unsigned int* GetExportTableAddress(void* pointerInModule);
+PIMAGE_EXPORT_DIRECTORY GetExportDirectory(char* module);
 void PrepareJumpTable(unsigned int* source);
 std::span<unsigned char> GetCodeSection(void* mod);
 
