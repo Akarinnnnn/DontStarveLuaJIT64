@@ -577,6 +577,7 @@ struct Entry {
 };
 
 static std::tr1::unordered_set<std::string> missingFuncs;
+// sigEntries
 std::set<Entry> entries;
 
 static void DumpHex(const BYTE* p, size_t size) {
@@ -593,7 +594,7 @@ static void DumpHex(const BYTE* p, size_t size) {
 	}
 }
 
-static Entry ParseEntry(const std::string& name, const BYTE* c) {
+static Entry ParseEntry(const std::string& name, const BYTE* c /* funcptr */ ) {
 	Entry entry;
 	entry.name = name;
 	entry.address = (BYTE*)c;
@@ -601,31 +602,35 @@ static Entry ParseEntry(const std::string& name, const BYTE* c) {
 	memset(target, 0x00, INSTR_SIZE);
 	memset(entry.lengthHist, 0, sizeof(entry.lengthHist));
 	xde_instr instr;
-	size_t validLength = 0;
+	size_t validLength = 0;// 指令总长度
 	bool edge = false;
 	while (target < entry.instr + INSTR_SIZE) {
-		xde_disasm((BYTE*)c, &instr);
-		int len = instr.len;
+		xde_disasm((BYTE*)c, &instr); // dasm
+		int len = instr.len; // instruction length
 		if (len == 0)
 			break;
 
 		if (instr.opcode == 0x68 || instr.addrsize == 4) {
 			// read memory data
-			PVOID addr = instr.opcode == 0x68 ? *(PVOID*)(c + 1) : (PVOID)instr.addr_l[0];
+			// int*
+			// ApplyRva<int32>(c+1) or ApplyRva(instr.addrLong[0])
+			PVOID addr = instr.opcode == 0x68 ? *(PVOID*)(c + 1) : (PVOID)instr.addr_l[0]; 
 			char buf[16];
 			memset(buf, 0, sizeof(buf));
 
 			BYTE temp[16];
 			if (instr.opcode == 0x68) {
 				DWORD dwRead;
-				::ReadProcessMemory(GetCurrentProcess(), addr, buf, 4, &dwRead);
+				::ReadProcessMemory(GetCurrentProcess(), addr, buf, 4, &dwRead); 
 				memcpy(temp, c, instr.len);
+				// temp + 1 = ApplyRva(buf, 1)[0]
 				*(PVOID*)(temp + 1) = *(PVOID*)buf;
 			} else {
 				instr.addr_l[0] = *(long*)buf;
 
 				xde_asm(temp, &instr);
 			}
+			// memcpy(entry.Cache, );
 			memcpy(target, temp, len + target > entry.instr + INSTR_SIZE ? entry.instr + INSTR_SIZE - target : len);
 		} else {
 			memcpy(target, c, len + target > entry.instr + INSTR_SIZE ? entry.instr + INSTR_SIZE - target : len);
@@ -637,7 +642,7 @@ static Entry ParseEntry(const std::string& name, const BYTE* c) {
 			validLength += len + target > entry.instr + INSTR_SIZE ? entry.instr + INSTR_SIZE - target : len;
 		entry.lengthHist[len]++;
 
-		if (*c == 0xCC) {
+		if (*c == 0xCC) { // int 3 停止解析
 			edge = true;
 		}
 	}
@@ -698,6 +703,7 @@ static int CommonLength(const BYTE* x, int xlen, const BYTE* y, int ylen) {
 	return opt[xlen][ylen];
 }
 
+// dontstrave, lua5.1.dll
 void Redirect(HMODULE from, HMODULE to) {
 	std::set<Entry> toEntries, fromEntries;
 	// printf("Get from entry\n");
@@ -706,6 +712,7 @@ void Redirect(HMODULE from, HMODULE to) {
 	GetEntries(to, toEntries);
 
 	std::tr1::unordered_map<std::string, BYTE*> mapAddress;
+	// foreach toEnt : toEntries
 	for (std::set<Entry>::iterator it = toEntries.begin(); it != toEntries.end(); ++it) {
 		mapAddress[(*it).name] = (*it).address;
 		// printf("Function Refs (%s)\n", (*it).name.c_str());
@@ -725,6 +732,8 @@ void Redirect(HMODULE from, HMODULE to) {
 
 		std::vector<std::pair<BYTE*, BYTE*> > hookList;
 		bool success = true;
+
+		// foreach (auto ent : sigEntries)
 		for (std::set<Entry>::iterator q = entries.begin(); q != entries.end(); ++q) {
 			BYTE* address = mapAddress[(*q).name];
 			if (address != NULL && (*q).validLength > 12) {
@@ -735,8 +744,9 @@ void Redirect(HMODULE from, HMODULE to) {
 					if (*(p - 1) != 0xcc && *(p - 1) != 0xc3) continue;
 					// find nearest
 					const BYTE* left = p;
-					Entry entry = ParseEntry((*q).name, left);
+					Entry entry = ParseEntry((*q).name, left); // srcEnt = FindCalls(sigEntry.Name, pfunc)
 
+					// count = cmp(srcEnt, sigEnt)
 					int count = CommonLength(entry.instr, entry.validLength, (*q).instr, (*q).validLength);
 
 					if (count > maxCount) {
@@ -810,7 +820,7 @@ void Redirect(HMODULE from, HMODULE to) {
 void RedirectLuaProviderEntries(HMODULE from, HMODULE to, HMODULE refer) {
 	printf("Entries: From %p, To %p, Refer: %p\n", from, to, refer);
 	GetEntries(refer, entries);
-	Redirect(from, to);
+	Redirect(from, to); 
 	::FreeLibrary(refer);
 }
 
