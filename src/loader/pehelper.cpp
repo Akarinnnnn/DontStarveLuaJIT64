@@ -6,7 +6,7 @@
 #include "pehelper.hpp"
 #define _WIN32_LEAN_AND_MEAN 1
 
-char* jmptable[ExportFunctionCount] {};
+char* jmptable[ExportFunctionCount + 1] {};
 
 auto GetOptHeader(void* mod) {
 	IMAGE_DOS_HEADER * header = (IMAGE_DOS_HEADER*)mod;
@@ -46,11 +46,11 @@ void PrepareJumpTable(unsigned int* source)
 	auto* ntheader = GetOptHeader(mod);
 	char* expdir = (char*)GetExportDirectory((char*)source);
 	uint32_t* eat = (uint32_t*)(mod + ((PIMAGE_EXPORT_DIRECTORY)expdir)->AddressOfFunctions);
-	std::fill(jmptable, jmptable + ExportFunctionCount - 1, mod);
+	std::fill(jmptable, jmptable + ExportFunctionCount, mod);
 
 	char fwdLib[64];
 
-	for (size_t i = 0; i < ExportFunctionCount; i++)
+	for (size_t i = 1; i < ExportFunctionCount; i++)
 	{
 		jmptable[i] += eat[i];
 	}

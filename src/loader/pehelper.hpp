@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <span>
 constexpr size_t ExportFunctionCount = 181; // winmm.dll
-extern "C" char * jmptable[ExportFunctionCount];
+extern "C" char * jmptable[ExportFunctionCount + 1];
 
 unsigned int* GetExportTableAddress(void* pointerInModule);
 PIMAGE_EXPORT_DIRECTORY GetExportDirectory(char* module);

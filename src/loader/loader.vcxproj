@@ -155,6 +155,7 @@
     <ClInclude Include="hook.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="pehelper.hpp" />
+    <ClInclude Include="search.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -181,6 +182,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.hpp</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="search.cpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="winmm.generated\trunks.asm" />

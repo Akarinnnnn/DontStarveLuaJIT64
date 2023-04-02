@@ -5,6 +5,7 @@
     <ClCompile Include="hook.cpp" />
     <ClCompile Include="pehelper.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="search.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hook.hpp" />
@@ -13,6 +14,7 @@
       <Filter>fde64</Filter>
     </ClInclude>
     <ClInclude Include="pch.hpp" />
+    <ClInclude Include="search.hpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="winmm.generated\trunks.asm" />
