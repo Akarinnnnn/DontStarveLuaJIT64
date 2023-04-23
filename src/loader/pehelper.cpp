@@ -48,8 +48,6 @@ void PrepareJumpTable(unsigned int* source)
 	uint32_t* eat = (uint32_t*)(mod + ((PIMAGE_EXPORT_DIRECTORY)expdir)->AddressOfFunctions);
 	std::fill(jmptable, jmptable + ExportFunctionCount, mod);
 
-	char fwdLib[64];
-
 	for (size_t i = 1; i < ExportFunctionCount; i++)
 	{
 		jmptable[i] += eat[i];

@@ -610,20 +610,25 @@ static Entry ParseEntry(const std::string& name, const BYTE* c /* funcptr */ ) {
 		if (len == 0)
 			break;
 
+		// if PUSH id or * id:
 		if (instr.opcode == 0x68 || instr.addrsize == 4) {
 			// read memory data
 			// int*
-			// ApplyRva<int32>(c+1) or ApplyRva(instr.addrLong[0])
+			// addr = ApplyRva<int32>(c+1) or ApplyRva(instr.addrLong[0])
 			PVOID addr = instr.opcode == 0x68 ? *(PVOID*)(c + 1) : (PVOID)instr.addr_l[0]; 
 			char buf[16];
 			memset(buf, 0, sizeof(buf));
 
 			BYTE temp[16];
+
+			
 			if (instr.opcode == 0x68) {
+				// if push id
 				DWORD dwRead;
+
 				::ReadProcessMemory(GetCurrentProcess(), addr, buf, 4, &dwRead); 
 				memcpy(temp, c, instr.len);
-				// temp + 1 = ApplyRva(buf, 1)[0]
+				// temp[1] = ApplyRva(buf, 1)[0]
 				*(PVOID*)(temp + 1) = *(PVOID*)buf;
 			} else {
 				instr.addr_l[0] = *(long*)buf;
