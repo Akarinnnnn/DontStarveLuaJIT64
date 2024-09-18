@@ -151,7 +151,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="fde64bin\fde64.h" />
     <ClInclude Include="hook.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="pehelper.hpp" />
@@ -189,9 +188,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="winmm.generated\exports.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="fde64bin\fde64.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

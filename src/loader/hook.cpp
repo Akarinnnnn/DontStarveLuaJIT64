@@ -4,11 +4,28 @@
 #include "fde64bin/fde64.h"
 #include "search.hpp"
 
+#include <unordered_map>
+#include <functional>
+
+
 using namespace std;
 
 // constexpr auto SizeOfCalls = 16;
+namespace
+{
+	// FF 25 <i4 RVA>
+	constexpr unsigned short Jmp64Prefix = '\x25\xff';
 
+	struct ReplacingFunctionEntry
+	{
+		function<void()> ApplyPatch;
+		string_view Name;
+		string_view HexPattern;
+	};
 
+	unordered_map<string_view, ReplacingFunctionEntry> functions{ 128 };
+
+}
 void Writer::Advance(int length)
 {
 	Advance((size_t)length);
@@ -24,23 +41,21 @@ void Writer::Advance(size_t length)
 DWORD Writer::UnlockCode()
 {
 	DWORD old;
-	VirtualProtect(buffer, SizeOfCopy, PAGE_EXECUTE_READWRITE, &old); // rwx
+	VirtualProtect(buffer, SizeOfCopy, PAGE_READWRITE, &old); // rw
 	return old;
 }
 
-// FF 25 <i4 RVA>
-constexpr unsigned short Jmp64Prefix = '\x25\xff';
 
 
-size_t SearchAndApply(void* hReplacement, void* hHookee, void* hSignerature)
+size_t SearchAndApply(void* hexReplacement, void* hexHookee, void* hexSignature)
 {
 	size_t hooksCount = 0;
 
-	set<Entry> signerature{}, replacement{};
-	FindVmFunctions(hReplacement, replacement);
-	FindVmFunctions(hSignerature, signerature);
+	set<Entry> signature{}, replacement{};
+	FindVmFunctions(hexReplacement, replacement);
+	FindVmFunctions(hexSignature, signature);
 
-	auto codesect = GetCodeSection(hHookee);
+	auto codesect = GetCodeSection(hexHookee);
 }
 
 void Apply(void* toHook, void* targetPointer)

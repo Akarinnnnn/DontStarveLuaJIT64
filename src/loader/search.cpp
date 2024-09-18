@@ -4,7 +4,7 @@
 
 using namespace std;
 
-set<string_view> ExistVmFunctions = {
+set<string_view> TargetVmFunctions = {
 	"luaL_addlstring", "luaL_addstring", "luaL_addvalue", "luaL_argerror",
 	"luaL_buffinit", "luaL_callmeta", "luaL_checkany", "luaL_checkinteger",
 	"luaL_checklstring", "luaL_checknumber", "luaL_checkoption", "luaL_checkstack",
@@ -28,21 +28,21 @@ void FindVmFunctions(void* hsig, set<Entry>& entries)
 {
 	auto* expdir = GetExportDirectory((char*)hsig);
 	auto* pEat = GetExportTableAddress(hsig);
-	auto* namesList = ApplyRva<DWORD>(hsig, expdir->AddressOfNames);
+	auto* namesList = ApplyOffset<DWORD>(hsig, expdir->AddressOfNames);
 
 	for (DWORD i = 0; i < expdir->NumberOfNames; i++)
 	{
 		if (namesList[i] == 0)
 			continue;
 
-		string_view currentName{ ApplyRva<char>(hsig, namesList[i]) };
+		string_view currentName{ ApplyOffset<char>(hsig, namesList[i]) };
 
 		/*if (currentName.starts_with(lua) ||
 			currentName.starts_with(luaopen) ||
 			currentName.starts_with(luaL))*/
-		if (ExistVmFunctions.contains(currentName))
+		if (TargetVmFunctions.contains(currentName))
 		{
-			RecordCalls(currentName, ApplyRva<uint8_t>(hsig, pEat[i]), entries);
+			RecordCalls(currentName, ApplyOffset<uint8_t>(hsig, pEat[i]), entries);
 		}
 	}
 }
@@ -51,7 +51,6 @@ void FindVmFunctions(void* hsig, set<Entry>& entries)
 void RecordCalls(string_view name, const uint8_t* funcAddr, set<Entry>& entries)
 {
 	Entry ent;
-	memcpy(&ent.InstructionCopy, funcAddr, 64);
 	fde64s inst;// insruction
 	int pos = 0;
 	while (decode(funcAddr + pos, &inst) != 0 &&
@@ -70,7 +69,11 @@ void RecordCalls(string_view name, const uint8_t* funcAddr, set<Entry>& entries)
 		// FF 15 <¾ø¶ÔµØÖ·>
 		if (inst.opcode == 0xE8 && inst.len == 5 || inst.flags & F_IMM32)
 		{
-			auto callee = *ApplyRva<uint8_t*>(funcAddr + pos, inst.imm32);
+			uint8_t* callee;
+			if (inst.flags & F_IMM16)
+				callee = *ApplyOffset<uint8_t*>(funcAddr + pos, inst.imm16);
+			if (inst.flags & F_IMM16)
+				callee = *ApplyOffset<uint8_t*>(funcAddr + pos, inst.imm32);
 			ent.Address = callee;
 			entries.insert(ent);
 		}

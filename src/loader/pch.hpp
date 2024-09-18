@@ -2,6 +2,9 @@
 
 #define _CRT_SECURE_NO_WARNINGS 1
 #define _WIN32_LEAN_AND_MEAN 1
-#include<Windows.h>
+#include <Windows.h>
 #include <span>
+#include <concepts>
+#include <string_view>
+#include <string>
 

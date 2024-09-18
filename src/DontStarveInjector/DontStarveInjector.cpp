@@ -614,7 +614,7 @@ static Entry ParseEntry(const std::string& name, const BYTE* c /* funcptr */ ) {
 		if (instr.opcode == 0x68 || instr.addrsize == 4) {
 			// read memory data
 			// int*
-			// addr = ApplyRva<int32>(c+1) or ApplyRva(instr.addrLong[0])
+			// addr = inst is push ? *(instr.imm32) : inst.imm32
 			PVOID addr = instr.opcode == 0x68 ? *(PVOID*)(c + 1) : (PVOID)instr.addr_l[0]; 
 			char buf[16];
 			memset(buf, 0, sizeof(buf));
@@ -623,12 +623,13 @@ static Entry ParseEntry(const std::string& name, const BYTE* c /* funcptr */ ) {
 
 			
 			if (instr.opcode == 0x68) {
-				// if push id
+				// if inst is push dd
 				DWORD dwRead;
-
+				// inst.imm32 => buf
 				::ReadProcessMemory(GetCurrentProcess(), addr, buf, 4, &dwRead); 
 				memcpy(temp, c, instr.len);
 				// temp[1] = ApplyRva(buf, 1)[0]
+				// * ApplyOffset<void*>(temp+1) = *(void*) buf
 				*(PVOID*)(temp + 1) = *(PVOID*)buf;
 			} else {
 				instr.addr_l[0] = *(long*)buf;
@@ -666,7 +667,7 @@ static void GetEntries(HMODULE instance, std::set<Entry>& entries) {
 
 		for (size_t i = 0; i < expt->NumberOfNames; i++) {
 			const char* name = (const char*)instance + (long)names[i];
-			if (missingFuncs.count(name) != 0) continue;
+			if (missingFuncs.count(name) != 0) continue; // if funcs.contains(name) continue
 			if ((memcmp(name, "lua_", 4) == 0 || memcmp(name, "luaopen_", 8) == 0) || memcmp(name, "luaL_", 5) == 0) {
 				DWORD index = ordinals[i];
 				BYTE* c = (BYTE*)instance + addresses[index];

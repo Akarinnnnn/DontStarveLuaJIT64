@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "pehelper.hpp"
-#define _WIN32_LEAN_AND_MEAN 1
 
 char* jmptable[ExportFunctionCount + 1] {};
 
@@ -30,27 +29,23 @@ char* GetModule(void* ptr)
 	return ret;
 }
 
-unsigned int* GetExportTableAddress(void* ptr)
+uint32_t* GetExportTableAddress(void* ptr)
 {
 	auto mod = GetModule(ptr);
 	auto exdir = GetExportDirectory(mod);
-	return (unsigned int*)(mod + exdir->AddressOfFunctions);
+	return ApplyOffset<uint32_t>(mod, GetExportDirectory(mod)->AddressOfFunctions);
 }
 
 void PrepareJumpTable(unsigned int* source)
 {
-	auto mod = GetModule(source);
-	auto size = ExportFunctionCount * 8;
+	constexpr auto size = ExportFunctionCount * sizeof(intptr_t);
 	
-	// DWORD oldProtect = PAGE_READONLY;
-	auto* ntheader = GetOptHeader(mod);
-	char* expdir = (char*)GetExportDirectory((char*)source);
-	uint32_t* eat = (uint32_t*)(mod + ((PIMAGE_EXPORT_DIRECTORY)expdir)->AddressOfFunctions);
-	std::fill(jmptable, jmptable + ExportFunctionCount, mod);
+	auto mod = GetModule(source);
+	auto* eat = GetExportTableAddress(source);
 
 	for (size_t i = 1; i < ExportFunctionCount; i++)
 	{
-		jmptable[i] += eat[i];
+		jmptable[i] = *ApplyOffset<char*>(mod, eat[i]);
 	}
 
 
@@ -59,8 +54,10 @@ void PrepareJumpTable(unsigned int* source)
 std::span<unsigned char> GetCodeSection(void* modDstExecutable)
 {
 	auto* opt = GetOptHeader(modDstExecutable);
-	// auto* fileheader = (IMAGE_FILE_HEADER*)((char*)opt - sizeof(IMAGE_FILE_HEADER));
 
-	unsigned char* pCodeSection = (unsigned char*)opt->ImageBase + opt->BaseOfCode;
-	return std::span<unsigned char>(pCodeSection, opt->SizeOfCode);
+	return std::span<unsigned char>(
+		ApplyOffset<unsigned char>(
+			modDstExecutable,
+			opt->ImageBase + opt->BaseOfCode),
+		opt->SizeOfCode);
 }

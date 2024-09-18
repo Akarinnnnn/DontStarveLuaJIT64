@@ -10,9 +10,6 @@
   <ItemGroup>
     <ClInclude Include="hook.hpp" />
     <ClInclude Include="pehelper.hpp" />
-    <ClInclude Include="fde64bin\fde64.h">
-      <Filter>fde64</Filter>
-    </ClInclude>
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="search.hpp" />
   </ItemGroup>
@@ -21,15 +18,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="winmm.generated\exports.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="fde64">
-      <UniqueIdentifier>{aca90705-ce07-48eb-b52d-940361085980}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="fde64bin\fde64.obj">
-      <Filter>fde64</Filter>
-    </Object>
   </ItemGroup>
 </Project>

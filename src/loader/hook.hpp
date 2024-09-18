@@ -25,9 +25,10 @@ struct Writer
 	DWORD UnlockCode();
 };
 
+void RegisterVmFunction(std::string_view name, std::string_view hexPattern)
 
 
 // return the number of hooked trunks
-size_t SearchAndApply(void* hReplacement, void* hHookee, void* hSignerature);
+size_t SearchAndApply(void* hReplacement, void* hDontStrave);
 
 void Apply(void* toHook, void* targetPointer);
